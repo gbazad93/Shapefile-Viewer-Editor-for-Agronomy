@@ -1,2 +1,73 @@
 # Shapefile Viewer and Editor for Agronomy
-A Python and PyQt-based open-source application for agronomists and researchers to edit, visualize, and manage agricultural shapefiles with real-world map overlays and intuitive GUI controls.
+**This project** is a free, open-source **Python** and **PyQt**-based application designed for agronomists, farmers, and researchers who work with agricultural shapefiles.
+
+It provides a free and user-friendly environment to **open**, **edit**, **analyze**, and **visualize** shapefiles without needing expensive GIS software.
+
+Built with a full graphical interface (frontend) and a powerful geospatial engine (backend), this Editor empowers users to manage agricultural zone maps easily and efficiently.
+
+---
+
+## ✨ Features
+
+- 📂 **Open and Edit Shapefiles (.shp)**
+- 🖊️ **Edit, Add, or Delete Attributes and Features**
+- 🗺️ **Visualize Zones Over Real-World Satellite Maps**
+- 🎨 **Change Zones, Colormaps, and Transparency**
+- 🔍 **Zoom and Pan Maps Easily with Sliders and Navigation Buttons**
+- 🔎 **Filter and Search Table Data Instantly**
+- 📈 **View Quick Statistics About Your Shapefile**
+- 📤 **Export Edited Shapefiles Easily**
+
+---
+
+## 🛠️ Built With
+
+- Python
+- PyQt5 (for the GUI)
+- GeoPandas (for shapefile management)
+- Matplotlib (for map plotting)
+- Contextily (for adding real-world basemaps)
+- Pandas
+
+---
+
+## 📚 Who Is It For?
+
+- Agronomists managing crop zones or soil regions
+- Researchers analyzing field boundaries and agricultural zones
+- Farmers needing a simple tool to adjust field maps
+- GIS enthusiasts looking for an easy, free alternative to edit shapefiles
+
+---
+
+## 📜 License
+
+This project is released as **open-source** so that anyone can use, improve, or contribute to it.
+
+---
+
+## 🚀 Getting Started
+
+Clone the repository, install the required Python libraries, and run:
+
+```bash
+python ShapeFileEditor.py
+```
+
+**Requirements:**
+- Python 3.x
+- geopandas
+- matplotlib
+- contextily
+- PyQt5
+- pandas
+
+(You can install all dependencies with: `pip install -r requirements.txt`)
+
+---
+
+## 💬 Feedback
+
+Feel free to open issues or suggest features if you find something useful to add!  
+Let's make agricultural mapping easier for everyone.
+
