@@ -23,7 +23,7 @@ Built with a full graphical interface (frontend) and a powerful geospatial engin
 ## 🛠️ Built With
 
 - Python
-- PyQt5 (for the GUI)
+- PyQt6 (for the GUI)
 - GeoPandas (for shapefile management)
 - Matplotlib (for map plotting)
 - Contextily (for adding real-world basemaps)
@@ -46,6 +46,21 @@ This project is released as **open-source** so that anyone can use, improve, or 
 
 ---
 
+# 📦 Installation
+
+This project uses [Pixi](https://prefix.dev/docs/pixi/) for dependency management. If you don’t have Pixi installed:
+
+```bash
+curl -sSL https://prefix.dev/install.sh | bash
+```
+
+Then, inside the project folder:
+
+```bash
+pixi install
+pixi run python ShapeFileEditor.py
+```
+
 ## 🚀 Getting Started
 
 Clone the repository, install the required Python libraries, and run:
@@ -59,10 +74,10 @@ python ShapeFileEditor.py
 - geopandas
 - matplotlib
 - contextily
-- PyQt5
+- PyQt6
 - pandas
 
-(You can install all dependencies with: `pip install -r requirements.txt`)
+
 
 ---
 
@@ -70,4 +85,3 @@ python ShapeFileEditor.py
 
 Feel free to open issues or suggest features if you find something useful to add!  
 Let's make agricultural mapping easier for everyone.
-
