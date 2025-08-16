@@ -10,22 +10,24 @@ import geopandas as gpd
 import pandas as pd
 
 import matplotlib
-matplotlib.use("Qt5Agg")  # ensure Qt5
+# Use the generic Qt backend that supports Qt6
+matplotlib.use("QtAgg")
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 
 # Import contextily to add a basemap layer
 import contextily as ctx
 
-from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QAction, QFileDialog, QTableWidget, QTableWidgetItem,
+from PyQt6.QtWidgets import (
+    QApplication, QMainWindow, QFileDialog, QTableWidget, QTableWidgetItem,
     QVBoxLayout, QWidget, QPushButton, QMessageBox, QDialog, QDialogButtonBox,
     QCheckBox, QRadioButton, QGroupBox, QLabel, QLineEdit, QHBoxLayout, QComboBox,
-    QInputDialog, QSlider, QGridLayout, QSizePolicy
+    QInputDialog, QSlider, QGridLayout, QSizePolicy, QHeaderView, QAbstractItemView
 )
-from PyQt5.QtCore import Qt
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QAction
 
 
 ##############################################################################
@@ -83,7 +85,7 @@ class MapDialog(QDialog):
         nav_grid = QGridLayout()
         nav_grid.setSpacing(0)
         nav_grid.setContentsMargins(0, 0, 0, 0)
-        nav_grid.setSizeConstraint(QGridLayout.SetFixedSize)
+        nav_grid.setSizeConstraint(QGridLayout.SizeConstraint.SetFixedSize)
         
         self.btn_up = QPushButton("↑")
         self.btn_down = QPushButton("↓")
@@ -105,7 +107,7 @@ class MapDialog(QDialog):
         nav_grid.addWidget(self.btn_right, 1, 2)  # Right button
         nav_grid.addWidget(self.btn_down, 2, 1)  # Down button in the center
         nav_widget.setLayout(nav_grid)
-        nav_widget.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        nav_widget.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         map_layout.addWidget(nav_widget)
 
         # Canvas and its related controls.
@@ -117,23 +119,23 @@ class MapDialog(QDialog):
         canvas_layout.addWidget(self.toolbar)
         canvas_layout.addWidget(self.canvas)
         # Horizontal zoom slider.
-        self.zoom_slider = QSlider(Qt.Horizontal)
+        self.zoom_slider = QSlider(Qt.Orientation.Horizontal)
         self.zoom_slider.setMinimum(10)    # 10% of base view.
         self.zoom_slider.setMaximum(300)   # 300% means zoomed in.
         self.zoom_slider.setValue(100)     # 100% is the base view.
         self.zoom_slider.setTickInterval(10)
-        self.zoom_slider.setTickPosition(QSlider.TicksBelow)
+        self.zoom_slider.setTickPosition(QSlider.TickPosition.TicksBelow)
         self.zoom_slider.valueChanged.connect(self.on_slider_zoom)
         canvas_layout.addWidget(self.zoom_slider)
         map_layout.addLayout(canvas_layout)
 
         # Vertical transparency slider.
-        self.transparency_slider = QSlider(Qt.Vertical)
+        self.transparency_slider = QSlider(Qt.Orientation.Vertical)
         self.transparency_slider.setMinimum(0)
         self.transparency_slider.setMaximum(100)
         self.transparency_slider.setValue(100)  # Fully opaque.
         self.transparency_slider.setTickInterval(10)
-        self.transparency_slider.setTickPosition(QSlider.TicksRight)
+        self.transparency_slider.setTickPosition(QSlider.TickPosition.TicksRight)
         self.transparency_slider.valueChanged.connect(self.on_slider_transparency)
         map_layout.addWidget(self.transparency_slider)
 
@@ -268,7 +270,7 @@ class MapDialog(QDialog):
         x_center = (self.original_xlim[0] + self.original_xlim[1]) / 2
         y_center = (self.original_ylim[0] + self.original_ylim[1]) / 2
         half_width = (self.original_xlim[1] - self.original_xlim[0]) / 2
-        half_height = (self.original_ylim[1] - self.original_ylim[0]) / 2
+        half_height = (self.original_ylim[1] - self.original_ylim[1] + self.original_ylim[0]) / 2 if False else (self.original_ylim[1] - self.original_ylim[0]) / 2  # keep original logic
     
         new_xlim = [x_center - half_width / scale, x_center + half_width / scale]
         new_ylim = [y_center - half_height / scale, y_center + half_height / scale]
@@ -387,7 +389,7 @@ class MassUpdateDialog(QDialog):
         value_layout.addWidget(self.value_edit)
         main_layout.addLayout(value_layout)
 
-        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
         main_layout.addWidget(button_box)
@@ -514,22 +516,53 @@ class MainWindow(QMainWindow):
         self.attr_columns = []
 
     def apply_table_theme(self):
+        # behavior
         self.tableWidget.setAlternatingRowColors(True)
-        self.tableWidget.verticalHeader().setDefaultSectionSize(30)
-        self.tableWidget.horizontalHeader().setDefaultSectionSize(150)
-        self.tableWidget.setStyleSheet(
-            """
+        self.tableWidget.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.tableWidget.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self.tableWidget.setSortingEnabled(True)
+        self.tableWidget.setWordWrap(False)
+        self.tableWidget.setShowGrid(True)
+
+        # sizing
+        vh = self.tableWidget.verticalHeader()
+        hh = self.tableWidget.horizontalHeader()
+        vh.setDefaultSectionSize(28)
+        vh.setVisible(False)  # cleaner look; toggle True if you want row numbers
+        hh.setDefaultAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+        hh.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)  # user-resizable
+        hh.setStretchLastSection(True)  # last column fills remaining space
+        self.tableWidget.setHorizontalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
+
+        # dark-friendly stylesheet with padding and clear selection
+        self.tableWidget.setStyleSheet("""
             QTableWidget {
-                alternate-background-color: #f9f9f9;
+                /* works in dark & light */
+                gridline-color: #444;
+                alternate-background-color: #2b2b2b;
+                background: #1f1f1f;
+                color: #eaeaea;
+                selection-background-color: #3a6ea5;
+                selection-color: #ffffff;
+            }
+            QTableWidget::item {
+                padding: 6px;              /* extra breathing room */
             }
             QHeaderView::section {
-                background-color: #e0e0e0;
-                font-weight: bold;
-                font-size: 12pt;
-                border-bottom: 2px solid #888;
+                background-color: #303030; /* darker header */
+                color: #dcdcdc;
+                font-weight: 600;
+                font-size: 12px;
+                padding: 6px 8px;
+                border: 0px;
+                border-bottom: 2px solid #555;
             }
-            """
-        )
+            QTableCornerButton::section {
+                background-color: #303030;
+                border: 0px;
+                border-bottom: 2px solid #555;
+            }
+        """)
 
     def apply_filter(self):
         col_text = self.filterColumnCombo.currentText()
@@ -582,11 +615,18 @@ class MainWindow(QMainWindow):
             for col_idx in range(num_cols):
                 val = df_attrs.iat[row_idx, col_idx]
                 item = QTableWidgetItem(str(val))
-                item.setFlags(item.flags() | Qt.ItemIsEditable)
+                # PyQt6: use Qt.ItemFlag.ItemIsEditable
+                item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
                 self.tableWidget.setItem(row_idx, col_idx, item)
         self.apply_table_theme()
         self.filterColumnCombo.clear()
         self.filterColumnCombo.addItems(self.attr_columns)
+
+        # one-time auto size (reasonable width cap)
+        self.tableWidget.resizeColumnsToContents()
+        for col in range(self.tableWidget.columnCount()):
+            w = self.tableWidget.columnWidth(col)
+            self.tableWidget.setColumnWidth(col, min(max(w, 120), 320))
 
     def add_column(self):
         col_name, ok = QInputDialog.getText(self, "New Column", "Enter column name:")
@@ -601,7 +641,7 @@ class MainWindow(QMainWindow):
         row_count = self.tableWidget.rowCount()
         for row in range(row_count):
             item = QTableWidgetItem(default_value)
-            item.setFlags(item.flags() | Qt.ItemIsEditable)
+            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
             self.tableWidget.setItem(row, col_index, item)
         self.attr_columns.append(col_name)
         self.apply_table_theme()
@@ -638,7 +678,7 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "No Data", "No shapefile data loaded.")
             return
         dialog = MassUpdateDialog(self.attr_columns, self)
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             selected_columns = dialog.getSelectedColumns()
             operation = dialog.getOperation()
             value = dialog.getValue()
@@ -711,7 +751,7 @@ class MainWindow(QMainWindow):
             return
         try:
             dlg = MapDialog(self.gdf, parent=self)
-            dlg.exec_()
+            dlg.exec()
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to plot shapefile:\n{str(e)}")
 
@@ -761,10 +801,8 @@ def main():
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
-
-
