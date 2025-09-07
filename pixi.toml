@@ -1,0 +1,15 @@
+ [workspace]
+channels = ["conda-forge"]
+name = "Shape file editor"
+platforms = ["win-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = "3.13.*"
+geopandas = ">=1.1.1,<2"
+contextily = ">=1.6.2,<2"
+
+[pypi-dependencies]
+pyqt6 = ">=6.9.1, <7"
